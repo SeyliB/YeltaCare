@@ -1,60 +1,72 @@
 import streamlit as st
-import pandas as pd
+from pymongo import MongoClient
+import bcrypt
 
-# Titre de l'application
-st.title("🍎 Nutrition Intelligente")
+# Connexion à MongoDB
+def connect_to_mongodb():
+    client = MongoClient("mongodb+srv://yelta:Phutsrbpnzg820wH@cluster0.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    db = client.YeltaCare
+    return db.Users
 
-# Section 1 : Introduction
-st.write("""
-Bienvenue dans votre application de nutrition intelligente !
-Entrez vos informations pour obtenir des recommandations personnalisées.
-""")
+# Hacher un mot de passe
+def hash_password(password):
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-# Section 2 : Collecte des informations utilisateur
-st.header("📋 Vos Informations")
-age = st.slider("Âge", 1, 100, 25)
-weight = st.number_input("Poids (kg)", 30, 200, 70)
-height = st.number_input("Taille (cm)", 100, 250, 175)
-activity_level = st.selectbox("Niveau d'activité", ["Sédentaire", "Léger", "Modéré", "Actif", "Très actif"])
-goal = st.radio("Objectif", ["Perte de poids", "Maintien", "Prise de masse"])
+# Vérifier un mot de passe
+def verify_password(password, hashed_password):
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
 
-# Section 3 : Calcul des besoins nutritionnels
-if st.button("Calculer mes besoins"):
-    # Exemple de calcul simple (à adapter avec des formules précises)
-    bmr = 10 * weight + 6.25 * height - 5 * age + 5  # Équation de Harris-Benedict
-    activity_multiplier = {
-        "Sédentaire": 1.2,
-        "Léger": 1.375,
-        "Modéré": 1.55,
-        "Actif": 1.725,
-        "Très actif": 1.9
-    }
-    tdee = bmr * activity_multiplier[activity_level]
+# Créer un nouvel utilisateur
+def create_user(username, password):
+    users = connect_to_mongodb()
+    if users.find_one({"username": username}):
+        return False  # L'utilisateur existe déjà
+    hashed_password = hash_password(password)
+    users.insert_one({"username": username, "password": hashed_password})
+    return True
 
-    st.subheader("⚡ Vos besoins nutritionnels")
-    st.write(f"Calories quotidiennes recommandées : **{tdee:.0f} kcal**")
+# Authentifier un utilisateur
+def authenticate_user(username, password):
+    users = connect_to_mongodb()
+    user = users.find_one({"username": username})
+    if user and verify_password(password, user["password"]):
+        return True
+    return False
 
-# Section 4 : Recommandations de repas
-st.header("🍽️ Recommandations de repas")
-meal_data = pd.read_csv("data/meals.csv")  # Exemple de données de repas
-st.write("Voici quelques idées de repas adaptées à vos besoins :")
-st.dataframe(meal_data)
+# Interface Streamlit
+def main():
+    st.title("🍎 Nutrition Intelligente - Connexion")
 
-# Section 5 : Suivi des repas
-st.header("📅 Suivi des repas")
-meal = st.text_input("Qu'avez-vous mangé aujourd'hui ?")
-if st.button("Ajouter"):
-    st.write(f"Vous avez mangé : {meal}")
+    # Menu de navigation
+    menu = ["Connexion", "Inscription"]
+    choice = st.sidebar.selectbox("Menu", menu)
 
-# Section 6 : Visualisation des données
-st.header("📊 Visualisation des données")
-st.write("Graphique des calories consommées au fil du temps")
-# Exemple de graphique (à adapter avec vos données)
-chart_data = pd.DataFrame({"Jour": [1, 2, 3, 4, 5], "Calories": [2000, 2200, 1800, 2500, 2100]})
-st.line_chart(chart_data.set_index("Jour"))
+    if choice == "Connexion":
+        st.subheader("Connexion")
+        username = st.text_input("Nom d'utilisateur")
+        password = st.text_input("Mot de passe", type="password")
+        if st.button("Se connecter"):
+            if authenticate_user(username, password):
+                st.success(f"Bienvenue, {username} !")
+                # Rediriger vers l'application principale
+                st.write("Vous êtes maintenant connecté.")
+            else:
+                st.error("Nom d'utilisateur ou mot de passe incorrect.")
 
-# Section 7 : Ressources supplémentaires
-st.header("📚 Ressources")
-st.write("Consultez ces ressources pour en savoir plus sur la nutrition :")
-st.markdown("- [Guide nutritionnel de l'OMS](https://www.who.int/fr)")
-st.markdown("- [Calculatrice de calories](https://www.calculator.net/calorie-calculator.html)")
+    elif choice == "Inscription":
+        st.subheader("Créer un compte")
+        new_username = st.text_input("Choisissez un nom d'utilisateur")
+        new_password = st.text_input("Choisissez un mot de passe", type="password")
+        confirm_password = st.text_input("Confirmez le mot de passe", type="password")
+        if st.button("S'inscrire"):
+            if new_password == confirm_password:
+                if create_user(new_username, new_password):
+                    st.success("Compte créé avec succès !")
+                    st.info("Connectez-vous pour accéder à l'application.")
+                else:
+                    st.error("Ce nom d'utilisateur est déjà pris.")
+            else:
+                st.error("Les mots de passe ne correspondent pas.")
+
+if __name__ == "__main__":
+    main()
