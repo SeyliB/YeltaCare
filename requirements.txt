@@ -6,3 +6,4 @@ streamlit-folium
 streamlit-echarts
 yfinance
 bcrypt
+streamlit-extras
