@@ -1,99 +1,60 @@
 import streamlit as st
-from database import MongoDB
-from ai import GeminiAI
+import pandas as pd
 
+# Titre de l'application
+st.title("🍎 Nutrition Intelligente")
 
+# Section 1 : Introduction
+st.write("""
+Bienvenue dans votre application de nutrition intelligente !
+Entrez vos informations pour obtenir des recommandations personnalisées.
+""")
 
+# Section 2 : Collecte des informations utilisateur
+st.header("📋 Vos Informations")
+age = st.slider("Âge", 1, 100, 25)
+weight = st.number_input("Poids (kg)", 30, 200, 70)
+height = st.number_input("Taille (cm)", 100, 250, 175)
+activity_level = st.selectbox("Niveau d'activité", ["Sédentaire", "Léger", "Modéré", "Actif", "Très actif"])
+goal = st.radio("Objectif", ["Perte de poids", "Maintien", "Prise de masse"])
 
-#Pour utiliser les fonctions de mongoDB
-db = MongoDB()
-#Pour utiliser les fonctions de Gemini
-gemini = GeminiAI()
+# Section 3 : Calcul des besoins nutritionnels
+if st.button("Calculer mes besoins"):
+    # Exemple de calcul simple (à adapter avec des formules précises)
+    bmr = 10 * weight + 6.25 * height - 5 * age + 5  # Équation de Harris-Benedict
+    activity_multiplier = {
+        "Sédentaire": 1.2,
+        "Léger": 1.375,
+        "Modéré": 1.55,
+        "Actif": 1.725,
+        "Très actif": 1.9
+    }
+    tdee = bmr * activity_multiplier[activity_level]
 
-# Interface Streamlit
-st.title("🤖 YELTA-AI")
-st.write("Pose-moi une question !")
+    st.subheader("⚡ Vos besoins nutritionnels")
+    st.write(f"Calories quotidiennes recommandées : **{tdee:.0f} kcal**")
 
+# Section 4 : Recommandations de repas
+st.header("🍽️ Recommandations de repas")
+meal_data = pd.read_csv("data/meals.csv")  # Exemple de données de repas
+st.write("Voici quelques idées de repas adaptées à vos besoins :")
+st.dataframe(meal_data)
 
-# Entrée utilisateur
-user_input = st.text_input("💬 Votre question :", "")
+# Section 5 : Suivi des repas
+st.header("📅 Suivi des repas")
+meal = st.text_input("Qu'avez-vous mangé aujourd'hui ?")
+if st.button("Ajouter"):
+    st.write(f"Vous avez mangé : {meal}")
 
-# Si on souhaite intégrer la génération de code python via l'API Google
-if st.button("Générer du code") and user_input:
-    st.write("### 🤖 Code généré :")
-    st.code(gemini.generate_text(user_input))
+# Section 6 : Visualisation des données
+st.header("📊 Visualisation des données")
+st.write("Graphique des calories consommées au fil du temps")
+# Exemple de graphique (à adapter avec vos données)
+chart_data = pd.DataFrame({"Jour": [1, 2, 3, 4, 5], "Calories": [2000, 2200, 1800, 2500, 2100]})
+st.line_chart(chart_data.set_index("Jour"))
 
-
-    # Input field
-user_input = st.text_input("Enter some data to store in MongoDB:")
-
-if st.button("Save to MongoDB") and user_input:
-    db.insert_data({"data": user_input})
-    st.success("✅ Data saved successfully!")
-
-# Display data from MongoDB
-st.subheader("📜 Stored Data:")
-
-data = db.get_all_data()
-for item in data:
-    st.write(item["data"])
-
-
-
-# Créer un menu déroulant pour les onglets
-tab = st.sidebar.selectbox("Choisissez une section", ["Section 1", "Section 2", "Section 3"])
-
-# Afficher le contenu de l'onglet sélectionné
-if tab == "Section 1":
-    st.write("Contenu de la Section 1")
-elif tab == "Section 2":
-    st.write("Contenu de la Section 2")
-else:
-    st.write("Contenu de la Section 3")
-
-
-import streamlit as st
-import folium
-from folium.plugins import HeatMap
-from streamlit_folium import st_folium
-
-# Exemple de données de points (latitude, longitude)
-data = [
-    [37.7749, -122.4194],  # San Francisco
-    [37.8044, -122.2711],  # Oakland
-    [37.8044, -122.4491],  # San Francisco
-    [37.6879, -122.4702],  # San Mateo
-    [37.7749, -122.4394],  # San Francisco
-    [37.8045, -122.4545],  # Oakland
-]
-
-# Créer une carte avec un style noir et blanc minimaliste
-m = folium.Map(location=[37.7749, -122.4194], zoom_start=12, 
-               tiles="CartoDB positron")  # Style noir et blanc minimal
-
-# Ajouter la heatmap
-HeatMap(data).add_to(m)
-
-# Afficher la carte dans Streamlit
-st_folium(m, width=725)
-
-
-from streamlit_echarts import st_echarts
-liquidfill_option = {
-    "series": [{"type": "liquidFill", "data": [0.8, 0.7, 0.6, 0.5]}]
-}
-st_echarts(liquidfill_option)
-
-
-
-
-import yfinance as yf
-
-# List of ticker symbols for multiple companies
-tickers = ["AAPL", "GOOG", "MSFT", "AMZN", "TSLA"]
-
-# Download historical data for all companies in the list
-data = yf.download(tickers, start="2020-01-01", end="2025-01-01")
-
-# Display the data
-print(data)
+# Section 7 : Ressources supplémentaires
+st.header("📚 Ressources")
+st.write("Consultez ces ressources pour en savoir plus sur la nutrition :")
+st.markdown("- [Guide nutritionnel de l'OMS](https://www.who.int/fr)")
+st.markdown("- [Calculatrice de calories](https://www.calculator.net/calorie-calculator.html)")
