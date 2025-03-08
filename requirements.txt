@@ -1,1 +1,7 @@
 streamlit
+google-genai
+python-dotenv
+pymongo 
+streamlit-folium
+streamlit-echarts
+yfinance
