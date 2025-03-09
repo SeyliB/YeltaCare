@@ -20,12 +20,16 @@ class MongoDB:
         self.collection = self.db[collection_name]
 
     def insert_data(self, data):
-        """Insère un document dans la collection"""
-        if not self.collection:
+        """Insère un document dans la collection avec gestion des erreurs"""
+        if self.collection is None:
             raise ValueError(
-                "Aucune collection définie. Utilisez set_collection().")
-        result = self.collection.insert_one(data)
-        return result.inserted_id
+                "❌ Aucune collection définie. Utilisez set_collection().")
+        try:
+            result = self.collection.insert_one(data)
+            return result.inserted_id
+        except pymongo.errors.PyMongoError as e:
+            print(f"❌ Erreur d'insertion MongoDB : {e}")
+            return None
 
     def get_all_data(self):
         """Récupère tous les documents de la collection"""
