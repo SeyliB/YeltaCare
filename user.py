@@ -18,8 +18,8 @@ def create_user(username, password):
     list = collection.get_data_by_query(query)
     unique = len(list) == 0
     if unique:
-        collection.insert_data(query)
         connected = username
+        collection.insert_data(query)
     return unique
 
 # Authentifier un utilisateur
