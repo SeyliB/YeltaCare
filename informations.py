@@ -2,6 +2,7 @@ import streamlit as st
 import user
 import time
 import database
+import streamlit_app as main
 
 collection = database.getCollection("Informations")
 
@@ -85,5 +86,6 @@ def display():
         st.write(f"📂 Collection actuelle: {collection.collection.name}")
         collection.insert_data(user_data)
 
-        st.success(
-            f"✅ Profil de santé de {nom} enregistré avec succès!")
+        st.success(f"✅ Profil de santé de {nom} enregistré avec succès!")
+        time.sleep(2)
+        main.goto("principal")

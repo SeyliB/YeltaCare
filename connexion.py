@@ -16,6 +16,8 @@ def display():
             st.success(f"Bienvenue, {username} !")
             # Rediriger vers l'application principale
             st.write("Vous êtes maintenant connecté.")
+            time.sleep(2)
+            main.goto("principal")
         else:
             st.error("Nom d'utilisateur ou mot de passe incorrect.")
 

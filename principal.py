@@ -1,3 +1,4 @@
 import streamlit as st
 
-st.write("Kesspass")
+def display():
+    st.write("PRINCIPAL!")

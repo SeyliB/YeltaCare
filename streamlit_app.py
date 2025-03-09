@@ -2,6 +2,7 @@ import streamlit as st
 import inscription
 import connexion
 import informations
+import principal
 
 def goto(page):
     st.session_state.page = page
@@ -20,6 +21,8 @@ def main():
         inscription.display()
     elif st.session_state.page == "informations":
         informations.display()
+    elif st.session_state.page == "principal":
+        principal.display()
 
 if __name__ == "__main__":
     main()
