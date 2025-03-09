@@ -14,6 +14,7 @@ def verify_password(password, hashed_password):
 
 # Créer un nouvel utilisateur
 def create_user(username, password):
+    global connected
     query = {"username": username, "password": password}
     list = collection.get_data_by_query(query)
     unique = len(list) == 0
@@ -24,6 +25,7 @@ def create_user(username, password):
 
 # Authentifier un utilisateur
 def authenticate_user(username, password):
+    global connected
     query = {"username": username, "password": password}
     list = collection.get_data_by_query(query)
     found = len(list) == 1
