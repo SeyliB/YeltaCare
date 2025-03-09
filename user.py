@@ -1,5 +1,8 @@
 import streamlit as st
+import time
 from database import MongoDB
+
+import streamlit_app as main
 
 db = MongoDB()
 id = None
@@ -48,8 +51,7 @@ def login_interface():
 
     # Bouton pour aller à l'interface d'inscription
     if st.button("Pas encore de compte ? Inscrivez-vous ici"):
-        st.session_state.page = "inscription"
-        st.rerun()  # Forcer le rechargement de la page
+        main.goto("inscription")
 
 # Interface d'inscription
 def register_interface():
@@ -65,8 +67,7 @@ def register_interface():
             if create_user(new_username, new_password):
                 st.success("Compte créé avec succès !")
                 st.info("Connectez-vous pour accéder à l'application.")
-                st.session_state.page = "connexion"  # Rediriger vers la connexion
-                st.rerun()  # Forcer le rechargement de la page
+                main.goto("informations")
             else:
                 st.error("Ce nom d'utilisateur est déjà pris.")
         else:
@@ -74,5 +75,4 @@ def register_interface():
 
     # Bouton pour revenir à l'interface de connexion
     if st.button("Déjà un compte ? Connectez-vous ici"):
-        st.session_state.page = "connexion"
-        st.rerun()  # Forcer le rechargement de la page
+        main.goto("connexion")
