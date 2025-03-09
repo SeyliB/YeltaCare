@@ -9,26 +9,36 @@ def display():
     # Titre de la page
     st.title("📅 Horaire Hebdomadaire d'Exercices et de Nutrition")
 
-    # Afficher l'horaire des exercices
-    st.header("🏋️‍♂️ Exercices")
-    st.write("Voici votre programme d'exercices pour la semaine :")
+    # Fusionner les données d'exercices et de nutrition
+    horaire = pd.merge(exercices, nutritions, on=["Jour", "Heure"], how="outer", suffixes=("_exercice", "_nutrition"))
 
-    # Appliquer des couleurs aux cellules du tableau
-    def color_exercices(val):
-        color = "lightgreen" if "Course" in val else "lightblue" if "Yoga" in val else "lightcoral"
-        return f"background-color: {color}"
+    # Créer un DataFrame pour l'affichage
+    jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+    heures = ["07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]
 
-    styled_exercices = exercices.style.applymap(color_exercices)
-    st.dataframe(styled_exercices)
+    # Initialiser un DataFrame vide pour l'horaire
+    horaire_df = pd.DataFrame(index=heures, columns=jours)
 
-    # Afficher l'horaire de nutrition
-    st.header("🍎 Nutrition")
-    st.write("Voici votre programme de nutrition pour la semaine :")
+    # Remplir le DataFrame avec les données
+    for _, row in horaire.iterrows():
+        jour = row["Jour"]
+        heure = row["Heure"]
+        exercice = row["Exercice"]
+        nutrition = row["Repas"]
+        horaire_df.at[heure, jour] = f"{exercice}\n{nutrition}" if pd.notna(exercice) and pd.notna(nutrition) else (exercice if pd.notna(exercice) else nutrition)
 
-    # Appliquer des couleurs aux cellules du tableau
-    def color_nutritions(val):
-        color = "lightyellow" if "Salade" in val else "lightpink" if "Poulet" in val else "lightcyan"
-        return f"background-color: {color}"
+    # Afficher l'horaire
+    st.write("Voici votre horaire hebdomadaire d'exercices et de nutrition :")
+    st.dataframe(horaire_df)
 
-    styled_nutritions = nutritions.style.applymap(color_nutritions)
-    st.dataframe(styled_nutritions)
+    # Appliquer des couleurs pour différencier les exercices et la nutrition
+    def color_cells(val):
+        if pd.notna(val):
+            if "Exercice" in val:
+                return "background-color: lightgreen"
+            elif "Repas" in val:
+                return "background-color: lightblue"
+        return ""
+
+    styled_horaire = horaire_df.style.applymap(color_cells)
+    st.dataframe(styled_horaire)
