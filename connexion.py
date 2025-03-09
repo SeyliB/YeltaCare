@@ -15,7 +15,6 @@ def display():
         if user.authenticate_user(username, password):
             st.success(f"Bienvenue, {username} !")
             # Rediriger vers l'application principale
-            st.write("Vous êtes maintenant connecté.")
             time.sleep(2)
             main.goto("principal")
         else:

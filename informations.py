@@ -75,7 +75,7 @@ def display():
             "stress_niveau": stress,
             "alimentation": alimentation,
             "eau_L": eau,
-            "antecedents_medicaux": antecedents,
+            "antecedents_medicaux": antecedents if len(antecedents) > 0 else "Aucun antécédent médical",
             "fumeur": fumeur,
             "alcool": alcool,
             "date_enregistrement": time.strftime("%Y-%m-%d %H:%M:%S")

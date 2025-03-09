@@ -8,3 +8,5 @@ yfinance
 bcrypt
 streamlit-extras
 streamlit_calendar
+matplotlib
+datetime

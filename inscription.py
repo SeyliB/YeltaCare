@@ -16,7 +16,6 @@ def display():
         if new_password == confirm_password:
             if user.create_user(new_username, new_password):
                 st.success("Compte créé avec succès !")
-                st.info("Connectez-vous pour accéder à l'application.")
                 time.sleep(2)
                 main.goto("informations")
             else:
