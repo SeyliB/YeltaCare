@@ -28,7 +28,7 @@ def display():
             age = st.slider("Âge", 0, 100, 25)
 
         genre = st.radio(
-            "Genre", ["Homme", "Femme", "Autre"], horizontal=True)
+            "Genre", ["Homme", "Femme"], horizontal=True)
 
         col1, col2 = st.columns(2)
         with col1:
@@ -85,7 +85,8 @@ def display():
                 "poids_kg": round(21.7 * ((taille/100) ** 2), 2),
                 "IMC": 21.7,
                 "sommeil_h": 9,
-                "stress_niveau": 
+                "stress_niveau": 5,
+                "eau_L": 3 if genre == "Homme" else 2
             },
             "follow_up": {
                 "taille_cm": [taille],
