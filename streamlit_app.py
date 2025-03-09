@@ -17,7 +17,7 @@ def main():
         user.login_interface()
     elif st.session_state.page == "inscription":
         user.register_interface()
-    elif st.se:
+    elif st.session_state.page == "informations":
         informations.
 
 if __name__ == "__main__":
