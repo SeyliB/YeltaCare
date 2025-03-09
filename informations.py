@@ -64,7 +64,7 @@ def display():
 
         # Création du JSON pour MongoDB
         user_data = {
-            "username": user.id,
+            "username": user.connected,
             "nom": nom,
             "age": age,
             "genre": genre,

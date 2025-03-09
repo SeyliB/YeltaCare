@@ -2,7 +2,7 @@ import streamlit as st
 import database
 
 collection = database.getCollection("Users")
-id = None
+connected = None
 
 # Hacher un mot de passe
 def hash_password(password):
@@ -19,6 +19,7 @@ def create_user(username, password):
     unique = len(list) == 0
     if unique:
         collection.insert_data(query)
+        connected = username
     return unique
 
 # Authentifier un utilisateur
@@ -27,5 +28,5 @@ def authenticate_user(username, password):
     list = collection.get_data_by_query(query)
     found = len(list) == 1
     if found:
-        id = username
+        connected = username
     return found
