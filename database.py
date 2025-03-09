@@ -31,6 +31,10 @@ class MongoDB:
         """Récupère tous les documents de la collection"""
         return list(self.collection.find())
 
+    def set_collection(self, collection_name):
+        """Change la collection utilisée"""
+        self.collection = self.db[collection_name]
+
     def get_data_by_query(self, query):
         """Récupère des documents selon un filtre"""
         return list(self.collection.find(query))
