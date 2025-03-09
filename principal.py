@@ -36,12 +36,12 @@ def display():
             updater_screen(document)
 
 def plan_screen(document):
+
+    st.header("📊 Plan de Nutritions et d'Exercices")
+    st.write("Voici le plan nutritionnel et les exercices à faire.")
+
     query = {"username": user.connected}
     data = collection.get_document(query)
-    st.set_page_config(page_title="YeltaCare - Santé & Bien-être", layout="wide")
-
-    # Titre principal centré
-    st.markdown("<h1 style='text-align: center;'>YeltaCare - Santé & Bien-être</h1>", unsafe_allow_html=True)
 
     # CSS pour centrer les tabs
     st.markdown(
@@ -59,12 +59,6 @@ def plan_screen(document):
         """,
         unsafe_allow_html=True
     )
-
-    # Création des onglets centrés
-    tabs = st.tabs(["🥗 Nutrition"])
-
-    with tabs[0]:  # Nutrition
-        st.header("..........................................")
 
     prompt = (
         "Dépendant des données suivantes correspondant à l'utilisateur " +
@@ -153,6 +147,9 @@ def show_graph(label, constant, data):
         st.error("Données inaccessibles.")
 
 def follow_up_screen(document):
+
+    st.header("🌱 Suivi de Santé")
+    st.write("Choisissez vos données de santé et voyez le suivi.")
 
     norms = document.get("norms")
     follow_up = document.get("follow_up")

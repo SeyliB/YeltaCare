@@ -61,12 +61,10 @@ def afficherCalendrierSemaine(data):
     )
 
     # Liste déroulante pour choisir un jour
-    jour_choisi = st.selectbox("Sélectionne un jour de la semaine", [
-                               "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"])
+    jour_choisi = st.selectbox("Sélectionne un jour de la semaine", ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"])
 
     # Filtrer les événements pour le jour choisi en utilisant get() pour éviter les erreurs
-    events_du_jour = [
-        event for event in calendar_events if event.get("day") == jour_choisi]
+    events_du_jour = [event for event in calendar_events if event.get("day") == jour_choisi]
 
     # Ajouter des boutons sous les événements pour le jour choisi
     if events_du_jour:
