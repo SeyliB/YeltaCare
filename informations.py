@@ -81,6 +81,12 @@ def display():
             "fumeur": fumeur,
             "alcool": alcool,
             "date_enregistrement": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "norms": {
+                "poids_kg": round(21.7 * ((taille/100) ** 2), 2),
+                "IMC": 21.7,
+                "sommeil_h": 9,
+                "stress_niveau": 
+            },
             "follow_up": {
                 "taille_cm": [taille],
                 "poids_kg": [poids],

@@ -61,7 +61,7 @@ def plan_screen(document):
     plan_df = pd.DataFrame(plan_data)
     st.dataframe(plan_df)
 
-def show_graph(label, data):
+def show_graph(label, constant, data):
     if len(data) > 0:
         # Création du DataFrame
         df = pd.DataFrame({label: data})
@@ -73,11 +73,21 @@ def show_graph(label, data):
         fig = px.line(df, x="index", y=label, markers=True, title=f"Évolution de {label} au fil du temps")
         fig.update_layout(xaxis_title="Entrées dans le temps", yaxis_title=label)
 
+        # Ajout de la ligne horizontale si une constante est fournie
+        if constant != None:
+            fig.add_hline(y=constant, line_dash="dash", line_color="red", annotation_text=f"{constant} Idéal", annotation_position="top right")
+
         # Mise à jour de l'axe des x pour qu'il affiche des entiers
         fig.update_layout(
             xaxis_title="Données dans le temps (Jour)",
             yaxis_title=label,
             xaxis=dict(tickmode="linear", dtick=1)  # Force un espacement de 1 entre les points
+        )
+
+        # Ajustement du zoom des axes
+        fig.update_layout(
+            xaxis=dict(tickmode="linear", dtick=1, range=[0.8, len(df) + 0.2]),  # Dézoome l'axe X
+            yaxis=dict(range=[min(df[label]) - 1, max(df[label]) + 1])  # Dézoome l'axe Y
         )
 
         # Affichage du graphique dans Streamlit
@@ -87,6 +97,7 @@ def show_graph(label, data):
 
 def follow_up_screen(document):
 
+    norms = document.get("norms")
     follow_up = document.get("follow_up")
 
     keys = {
@@ -98,17 +109,21 @@ def follow_up_screen(document):
         "Eau consommée": "eau_L"
     }
 
+    constants = {}
     datas = {}
 
     for key, value in keys.items():
+        norm = norms.get(value)
+        constants[value] = norm
         data = follow_up.get(value)
         datas[value] = data if data != None else []
 
     st.title("Suivi des données de santé")
     label = st.selectbox("Choisissez une métrique :", list(keys.keys()))
     key = keys.get(label)
+    constant = constants.get(key)
     data = datas.get(key)
-    show_graph(label, data)
+    show_graph(label, constant, data)
 
 def add_to_follow_up(new):
     query = {"username": user.connected}
