@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 import streamlit_app as main
 import user
 
@@ -16,6 +17,7 @@ def display():
             if user.create_user(new_username, new_password):
                 st.success("Compte créé avec succès !")
                 st.info("Connectez-vous pour accéder à l'application.")
+                time.sleep(2)
                 main.goto("informations")
             else:
                 st.error("Ce nom d'utilisateur est déjà pris.")
