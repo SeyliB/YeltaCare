@@ -1,8 +1,10 @@
 import streamlit as st
+import streamlit_app as main
 import database
 import user
+import informations
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 from datetime import datetime
 
 collection = database.getCollection("Informations")
@@ -59,27 +61,70 @@ def plan_screen(document):
     plan_df = pd.DataFrame(plan_data)
     st.dataframe(plan_df)
 
-def follow_up_screen(document):
-    st.header("🌱 Suivi de Santé")
-    st.write("Voici le suivi de vos données de santé au fil du temps.")
+def show_graph(label, data):
+    if len(data) > 0:
+        # Création du DataFrame
+        df = pd.DataFrame({label: data})
 
-    # Données d'exemple pour le suivi de santé
-    follow_up_data = {
-        "Date": ["2023-10-01", "2023-10-02", "2023-10-03", "2023-10-04", "2023-10-05"],
-        "Taille (cm)": [170, 170, 170, 170, 170],
-        "Poids (kg)": [70, 69.5, 69, 68.5, 68],
-        "IMC": [24.22, 23.98, 23.74, 23.50, 23.26],
-        "Sommeil (h)": [7, 7.5, 6.5, 8, 7],
-        "Stress (/10)": [5, 4, 6, 3, 5],
-        "Eau (L)": [2, 2.5, 2, 3, 2.5]
+        # Assurer un intervalle de 1 sur l'axe des x
+        df["index"] = range(1, len(df) + 1)
+
+        # Création du graphique
+        fig = px.line(df, x="index", y=label, markers=True, title=f"Évolution de {label} au fil du temps")
+        fig.update_layout(xaxis_title="Entrées dans le temps", yaxis_title=label)
+
+        # Mise à jour de l'axe des x pour qu'il affiche des entiers
+        fig.update_layout(
+            xaxis_title="Données dans le temps (Jour)",
+            yaxis_title=label,
+            xaxis=dict(tickmode="linear", dtick=1)  # Force un espacement de 1 entre les points
+        )
+
+        # Affichage du graphique dans Streamlit
+        st.plotly_chart(fig)
+    else:
+        st.error("Données inaccessibles.")
+
+def follow_up_screen(document):
+
+    follow_up = document.get("follow_up")
+
+    keys = {
+        "Taille": "taille_cm",
+        "Poids": "poids_kg",
+        "IMC": "IMC",
+        "Sommeil": "sommeil_h",
+        "Niveau de stress": "stress_niveau",
+        "Eau consommée": "eau_L"
     }
 
-    # Affichage du diagramme en ligne
-    follow_up_df = pd.DataFrame(follow_up_data)
-    follow_up_df.set_index("Date", inplace=True)
+    datas = {}
 
-    st.subheader("Évolution des Données de Santé")
-    st.line_chart(follow_up_df)
+    for key, value in keys.items():
+        data = follow_up.get(value)
+        datas[value] = data if data != None else []
+
+    st.title("Suivi des données de santé")
+    label = st.selectbox("Choisissez une métrique :", list(keys.keys()))
+    key = keys.get(label)
+    data = datas.get(key)
+    show_graph(label, data)
+
+def add_to_follow_up(new):
+    query = {"username": user.connected}
+    document = collection.get_document(query)
+    if document != None:
+        follow_up = document.get("follow_up")
+        for key, value in new.items():
+            list = follow_up.get(key)
+            if list != None:
+                list.append(value)
+                follow_up[key] = list
+        new["follow_up"] = follow_up
+        modified_count = collection.update_data(query, new)
+        return modified_count
+    return 0
+
 
 def updater_screen(document):
     st.header("⏳ Actualisateur de Données")
@@ -91,25 +136,26 @@ def updater_screen(document):
         date = st.date_input("Date", datetime.today())
         taille_cm = st.number_input("Taille (cm)", value=document.get("taille_cm", 170))
         poids_kg = st.number_input("Poids (kg)", value=document.get("poids_kg", 70))
+        imc = informations.get_imc(taille_cm, poids_kg)
         sommeil_h = st.number_input("Sommeil (heures)", value=document.get("sommeil_h", 7))
         stress_niveau = st.slider("Niveau de stress (/10)", 0, 10, document.get("stress_niveau", 5))
         eau_L = st.number_input("Eau consommée (L)", value=document.get("eau_L", 2))
 
         if st.form_submit_button("Mettre à jour"):
-            # Mettre à jour le document avec les nouvelles données
-            new_data = {
-                "date": date.strftime("%Y-%m-%d"),
+            # Nouvelles valeurs à mettre à jour
+            new = {
                 "taille_cm": taille_cm,
                 "poids_kg": poids_kg,
+                "IMC": imc,
                 "sommeil_h": sommeil_h,
                 "stress_niveau": stress_niveau,
-                "eau_L": eau_L
+                "eau_L": eau_L,
             }
-            # Ajouter les nouvelles données à l'historique
-            if "historique_sante" not in document:
-                document["historique_sante"] = []
-            document["historique_sante"].append(new_data)
 
             # Mettre à jour le document dans la base de données
-            collection.update_document({"username": user.connected}, document)
-            st.success("Données mises à jour avec succès !")
+            modified_count =  add_to_follow_up(new)
+
+            if modified_count > 0:
+                st.success("Données mises à jour avec succès !")
+            else:
+                st.error("Erreur lors de la mise à jour des données.")

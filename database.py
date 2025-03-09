@@ -11,7 +11,6 @@ MONGO_DB = os.getenv("MONGO_DB")
 
 collections = {}
 
-
 class MongoDB:
     def __init__(self, collection_name="Users"):
         """Initialise la connexion à MongoDB et définit la collection par défaut"""

@@ -6,6 +6,8 @@ import streamlit_app as main
 
 collection = database.getCollection("Informations")
 
+def get_imc(taille, poids):
+    return round(poids / ((taille / 100) ** 2), 2)
 
 def display():
     st.set_page_config(page_title="YeltaCare", page_icon="❤️", layout="centered")
@@ -59,7 +61,7 @@ def display():
 
     if submit_button:
         # Calcul de l'IMC
-        imc = round(poids / ((taille / 100) ** 2), 2)
+        imc = get_imc(taille, poids)
 
         # Création du JSON pour MongoDB
         user_data = {
@@ -78,7 +80,15 @@ def display():
             "antecedents_medicaux": antecedents if len(antecedents) > 0 else "Aucun antécédent médical",
             "fumeur": fumeur,
             "alcool": alcool,
-            "date_enregistrement": time.strftime("%Y-%m-%d %H:%M:%S")
+            "date_enregistrement": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "follow_up": {
+                "taille_cm": [taille],
+                "poids_kg": [poids],
+                "IMC": [imc],
+                "sommeil_h": [sommeil],
+                "stress_niveau": [stress],
+                "eau_L": [eau]
+            }
         }
 
         # Vérifie que la collection est bien définie
