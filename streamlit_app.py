@@ -1,5 +1,6 @@
 import streamlit as st
-import user
+import inscription
+import connexion
 import informations
 
 def goto(page):
@@ -14,11 +15,11 @@ def main():
 
     # Afficher l'interface correspondante
     if st.session_state.page == "connexion":
-        user.login_interface()
+        connexion.display()
     elif st.session_state.page == "inscription":
-        user.register_interface()
+        inscription.display()
     elif st.session_state.page == "informations":
-        informations.
+        informations.display()
 
 if __name__ == "__main__":
     main()
