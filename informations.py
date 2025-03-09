@@ -1,8 +1,7 @@
 import streamlit as st
 import user
+import database
 import time
-
-db = user.db
 
 def display():
     st.set_page_config(page_title="YeltaCare", page_icon="❤️", layout="centered")
@@ -60,6 +59,7 @@ def display():
 
         # Création du JSON pour MongoDB
         user_data = {
+            "username": user.id,
             "nom": nom,
             "age": age,
             "genre": genre,
@@ -76,8 +76,7 @@ def display():
             "alcool": alcool,
             "date_enregistrement": time.strftime("%Y-%m-%d %H:%M:%S")
         }
-        db.set_collection("Infos")
-        db.insert_data(user_data)
+        database.informations.insert_data(user_data)
         st.success(
             f"✅ Profil de santé de {nom} enregistré avec succès!")
 
