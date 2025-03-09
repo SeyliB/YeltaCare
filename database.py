@@ -13,11 +13,11 @@ collections = {}
 
 
 class MongoDB:
-    def __init__(self, COLLECTION):
-        """Initialise la connexion à MongoDB"""
+    def __init__(self, collection_name="Users"):
+        """Initialise la connexion à MongoDB et définit la collection par défaut"""
         self.client = pymongo.MongoClient(MONGO_URI)
         self.db = self.client[MONGO_DB]
-        self.collection = self.db[COLLECTION]
+        self.collection = self.db[collection_name] if collection_name else None
 
     def insert_data(self, data):
         """Insère un document dans la collection avec gestion des erreurs"""
@@ -56,6 +56,10 @@ class MongoDB:
     def close_connection(self):
         """Ferme la connexion à MongoDB"""
         self.client.close()
+
+    def get_document(self, query):
+        """Récupère un document complet selon un filtre"""
+        return self.collection.find_one(query)
 
 
 def getCollection(tag):
