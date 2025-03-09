@@ -8,8 +8,7 @@ collection = database.getCollection("Informations")
 
 
 def display():
-    st.set_page_config(page_title="YeltaCare",
-                       page_icon="❤️", layout="centered")
+    st.set_page_config(page_title="YeltaCare", page_icon="❤️", layout="centered")
 
     st.markdown(
         "<h1 style='text-align: center; color: #FF4B4B;'>🩺 Formulaire de Santé</h1>", unsafe_allow_html=True)
@@ -64,7 +63,7 @@ def display():
 
         # Création du JSON pour MongoDB
         user_data = {
-            "username": user.id,
+            "username": user.connected,
             "nom": nom,
             "age": age,
             "genre": genre,
