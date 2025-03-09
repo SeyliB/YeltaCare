@@ -3,16 +3,17 @@ import streamlit_app as main
 import database
 import user
 import informations
+import time
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
 
 collection = database.getCollection("Informations")
+tabs = None
 
 def display():
-
+    global tabs
     document = collection.get_document({"username": user.connected})
-
     if document != None:
 
         tabs = st.tabs(
@@ -75,19 +76,13 @@ def show_graph(label, constant, data):
 
         # Ajout de la ligne horizontale si une constante est fournie
         if constant != None:
-            fig.add_hline(y=constant, line_dash="dash", line_color="red", annotation_text=f"{constant} Idéal", annotation_position="top right")
+            fig.add_hline(y=constant, line_dash="dash", line_color="red", annotation_text=f"{label} Idéal ({constant})", annotation_position="top right")
 
         # Mise à jour de l'axe des x pour qu'il affiche des entiers
         fig.update_layout(
             xaxis_title="Données dans le temps (Jour)",
             yaxis_title=label,
             xaxis=dict(tickmode="linear", dtick=1)  # Force un espacement de 1 entre les points
-        )
-
-        # Ajustement du zoom des axes
-        fig.update_layout(
-            xaxis=dict(tickmode="linear", dtick=1, range=[0.8, len(df) + 0.2]),  # Dézoome l'axe X
-            yaxis=dict(range=[min(df[label]) - 1, max(df[label]) + 1])  # Dézoome l'axe Y
         )
 
         # Affichage du graphique dans Streamlit

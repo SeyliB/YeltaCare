@@ -99,9 +99,8 @@ def display():
         }
 
         # Vérifie que la collection est bien définie
-        st.write(f"📂 Collection actuelle: {collection.collection.name}")
         collection.insert_data(user_data)
 
-        st.success(f"✅ Profil de santé de {nom} enregistré avec succès!")
+        st.success(f"Profil de santé de {nom} enregistré avec succès!")
         time.sleep(2)
         main.goto("principal")
