@@ -3,12 +3,16 @@ import streamlit_app as main
 import database
 import user
 import informations
+import calendrier
+import json
+from ai import GeminiAI
 import time
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
 
 collection = database.getCollection("Informations")
+ai = GeminiAI()
 tabs = None
 
 def display():
@@ -32,35 +36,93 @@ def display():
             updater_screen(document)
 
 def plan_screen(document):
-    st.header("📊 Plan de Nutritions et d'Exercices")
-    st.write("Voici votre horaire hebdomadaire pour la nutrition et les exercices.")
+    query = {"username": user.connected}
+    data = collection.get_document(query)
+    st.set_page_config(page_title="YeltaCare - Santé & Bien-être", layout="wide")
 
-    # Données d'exemple pour le plan de nutrition et d'exercices
-    plan_data = {
-        "Jour": ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
-        "Nutrition": [
-            "Petit-déjeuner : Œufs, Avocat\nDéjeuner : Poulet grillé, Légumes\nDîner : Poisson, Riz",
-            "Petit-déjeuner : Smoothie, Fruits\nDéjeuner : Salade César\nDîner : Steak, Patates douces",
-            "Petit-déjeuner : Porridge, Fruits\nDéjeuner : Sandwich, Légumes\nDîner : Poulet, Quinoa",
-            "Petit-déjeuner : Yaourt, Granola\nDéjeuner : Soupe, Pain\nDîner : Saumon, Brocoli",
-            "Petit-déjeuner : Œufs, Pain complet\nDéjeuner : Salade de Thon\nDîner : Dinde, Légumes",
-            "Petit-déjeuner : Pancakes, Fruits\nDéjeuner : Pâtes, Sauce tomate\nDîner : Pizza légère",
-            "Petit-déjeuner : Omelette, Légumes\nDéjeuner : Burger sain\nDîner : Sushi"
-        ],
-        "Exercices": [
-            "Course à pied (30 min)",
-            "Yoga (45 min)",
-            "Musculation (60 min)",
-            "Natation (30 min)",
-            "Vélo (45 min)",
-            "Marche (60 min)",
-            "Repos"
-        ]
-    }
+    # Titre principal centré
+    st.markdown("<h1 style='text-align: center;'>YeltaCare - Santé & Bien-être</h1>", unsafe_allow_html=True)
 
-    # Affichage du tableau
-    plan_df = pd.DataFrame(plan_data)
-    st.dataframe(plan_df)
+    # CSS pour centrer les tabs
+    st.markdown(
+        """
+        <style>
+            div[data-testid="stTabs"] {
+                display: flex;
+                justify-content: center;
+            }
+            button[data-baseweb="tab"] {
+                font-size: 18px !important;
+                font-weight: bold !important;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Création des onglets centrés
+    tabs = st.tabs(["🥗 Nutrition"])
+
+    with tabs[0]:  # Nutrition
+        st.header("..........................................")
+
+    prompt = (
+        "Dépendant des données suivantes correspondant à l'utilisateur " +
+        str(data) + ", "
+        "je veux que tu remplisses un calendrier allant du lundi au dimanche, de 6h à 20h chaque jour. "
+        "Les repas nutritionnels doivent être placés aux heures de repas (petit-déjeuner, déjeuner, dîner). "
+        "Les événements doivent être de type 'sport' ou 'nutrition'. "
+        "Voici un exemple précis du format attendu : "
+        '''[
+            {
+                "title": "Entraînement Cardio",
+                "start": (start_of_week + timedelta(days=1)).strftime("%Y-%m-%dT08:30:00"),
+                "end": (start_of_week + timedelta(days=1)).strftime("%Y-%m-%dT10:00:00"),
+                "id": 1,
+                "type": "sport",  # Type 'sport'
+                "day": "Mardi"
+            },
+            {
+                "title": "Yoga Relaxation",
+                "start": (start_of_week + timedelta(days=2)).strftime("%Y-%m-%dT11:00:00"),
+                "end": (start_of_week + timedelta(days=2)).strftime("%Y-%m-%dT12:00:00"),
+                "id": 2,
+                "type": "sport",  # Type 'sport'
+                "day": "Mercredi"
+            },
+            {
+                "title": "Consultation Nutrition",
+                "start": (start_of_week + timedelta(days=3)).strftime("%Y-%m-%dT10:00:00"),
+                "end": (start_of_week + timedelta(days=3)).strftime("%Y-%m-%dT11:00:00"),
+                "id": 3,
+                "type": "nutrition",  # Type 'nutrition'
+                "day": "Jeudi"
+            },
+            {
+                "title": "Conseils en Nutrition",
+                "start": (start_of_week + timedelta(days=5)).strftime("%Y-%m-%dT14:00:00"),
+                "end": (start_of_week + timedelta(days=5)).strftime("%Y-%m-%dT15:00:00"),
+                "id": 4,
+                "type": "nutrition",  # Type 'nutrition'
+                "day": "Samedi"
+            }
+        ]'''
+        "Je veux que tu génères une réponse exactement dans ce format, sans autres informations, et que la réponse soit en JSON valide. et je le veut en format json avec ''' au debut et ''' a la fin mais respect bien les espaces et tout"
+    )
+
+    plan_str = ai.generate_text(prompt)
+
+    plan_str = plan_str[8:len(plan_str)-4]
+
+    plan = json.loads(plan_str)
+
+    # st.write(plan)
+    # Passer le plan d'événements au module calendrier pour affichage
+    calendrier.afficherCalendrierSemaine(plan)
+
+    st.write("Conseil")
+    # Générer le conseil du jour
+    # st.write(ai.generate_text("Avec ces data je veux que tu lui donne un petit conseil du jour sous la forme d'un petit rappelle de motivation (je veux que le paragraphe de motivation et rien d'autre tu dois le faire en 30-40 mots) " + str(data)))
 
 def show_graph(label, constant, data):
     if len(data) > 0:
