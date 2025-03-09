@@ -1,6 +1,7 @@
 import streamlit as st
 import database
 
+collection = database.getCollection("Users")
 id = None
 
 # Hacher un mot de passe
@@ -14,16 +15,16 @@ def verify_password(password, hashed_password):
 # Créer un nouvel utilisateur
 def create_user(username, password):
     query = {"username": username, "password": password}
-    list = database.users.get_data_by_query(query)
+    list = collection.get_data_by_query(query)
     unique = len(list) == 0
     if unique:
-        database.users.insert_data(query)
+        collection.insert_data(query)
     return unique
 
 # Authentifier un utilisateur
 def authenticate_user(username, password):
     query = {"username": username, "password": password}
-    list = database.users.get_data_by_query(query)
+    list = collection.get_data_by_query(query)
     found = len(list) == 1
     if found:
         id = username

@@ -1,10 +1,12 @@
 import streamlit as st
-import user
-import database
 import time
+import database
+
+collection = database.getCollection("Informations")
 
 def display():
-    st.set_page_config(page_title="YeltaCare", page_icon="❤️", layout="centered")
+    st.set_page_config(page_title="YeltaCare",
+                        page_icon="❤️", layout="centered")
 
     st.markdown(
         "<h1 style='text-align: center; color: #FF4B4B;'>🩺 Formulaire de Santé</h1>", unsafe_allow_html=True)
@@ -59,7 +61,6 @@ def display():
 
         # Création du JSON pour MongoDB
         user_data = {
-            "username": user.id,
             "nom": nom,
             "age": age,
             "genre": genre,
@@ -76,7 +77,13 @@ def display():
             "alcool": alcool,
             "date_enregistrement": time.strftime("%Y-%m-%d %H:%M:%S")
         }
-        database.informations.insert_data(user_data)
+        # db.set_collection("Infos")
+        # db.insert_data(user_data)
+
+        # Vérifie que la collection est bien définie
+        st.write(f"📂 Collection actuelle: {collection.collection.name}")
+        collection.insert_data(user_data)
+
         st.success(
             f"✅ Profil de santé de {nom} enregistré avec succès!")
 

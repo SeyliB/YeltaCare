@@ -9,8 +9,7 @@ load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DB = os.getenv("MONGO_DB")
 
-MONGO_USERS = os.getenv("MONGO_USERS")
-MONGO_INFORMATIONS = os.getenv("MONGO_INFORMATIONS")
+collections = {}
 
 class MongoDB:
     def __init__(self, COLLECTION):
@@ -46,5 +45,9 @@ class MongoDB:
         """Ferme la connexion à MongoDB"""
         self.client.close()
 
-users = MongoDB(MONGO_USERS)
-informations = MongoDB(MONGO_INFORMATIONS)
+def getCollection(tag):
+    list = collections.get(tag)
+    if list == None:
+        return MongoDB(tag)
+    else:
+        return list
