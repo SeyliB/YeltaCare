@@ -1,19 +1,3 @@
-# 🎈 Blank app template
+# YeltaCare
 
-A simple Streamlit app template for you to modify!
-
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
-
-### How to run it on your own machine
-
-1. Install the requirements
-
-   ```
-   $ pip install -r requirements.txt
-   ```
-
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+YeltaCare est une plateforme qui aide les utilisateurs à prendre en main leur santé et leur bien-être. Elle offre des outils et des ressources pour les guider dans l'atteinte de leurs objectifs de santé, qu'il s'agisse d'améliorer leur forme physique, de suivre un régime alimentaire, ou d'adopter des habitudes de vie plus saines. Grâce à des conseils personnalisés et à un suivi interactif, YeltaCare permet aux utilisateurs de mieux comprendre leurs besoins et de prendre des décisions éclairées pour leur bien-être.
